@@ -35,8 +35,7 @@ You can also just use the shell script directly. No need to add to `$PATH`.
 # Create a project 
 
 ```bash 
-mkdir my-awesome-mini-dbt-project
-cd my-awesome-mini-dbt-project
+mkdir my-awesome-mini-dbt-project && cd my-awesome-mini-dbt-project
 mini-dbt init 
 ```
 
