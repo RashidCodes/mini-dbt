@@ -249,3 +249,16 @@ to run the script. Models are supposed to contain DML statements but this is the
 
 <br/>
 
+
+# References 
+## You don't know Bash
+- https://opensource.com/article/18/5/you-dont-know-bash-intro-bash-arrays
+
+## `SQLCMD`
+- https://learn.microsoft.com/en-us/sql/tools/sqlcmd-utility?view=sql-server-ver16
+
+## Add to Path 
+- https://www.folkstalk.com/tech/how-to-setup-path-using-git-bash-in-windows-with-code-examples/
+
+## Find an element in a list
+- https://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value/8574392#8574392
