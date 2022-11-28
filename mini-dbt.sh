@@ -151,17 +151,19 @@ if [[ $arg == --exclude-folder ]]
 then 
     shift
 
-    exclude_folders=${@}
+    exclude_folders=${@};
 
-    for folder in $(echo */);
+    array=(functions staging intermediate serving analyses cleanup tests)
+
+    for folder in ${array[@]};
     do 
-        containsElement "${folder}" ${exclude_folders};
+        containsElement "${folder}/" ${exclude_folders};
 
         if [[ $? -ne 0 ]]
         then 
             for model in $(ls ${folder} | grep -E *.sql)
             do 
-                build_model "${folder}${model}"
+                build_model "${folder}/${model}"
             done;
         else 
             echo -e "${BLUE}$(date +%F:%H-%M-%S) [INFO]: Skipping folder ${folder}${ENDCOLOR}"; 
@@ -252,6 +254,7 @@ then
 fi;
 
 
-echo "rashid's mini-dbt v0.1"
+echo "rashid's mini-dbt v0.1.1"
 echo "Try mini-dbt --help for more information"
+
 
