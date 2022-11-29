@@ -34,7 +34,7 @@ build_model(){
 containsElement () {
     local legendary_array match="$1"
     shift
-    for legendary_array; do [[ "$legendary_array" == "$match" ]] && return 0; done;
+    for legendary_array; do [[ "${legendary_array}" == "${match}" ]] && return 0; done;
     return 1;
 }
 
@@ -63,7 +63,6 @@ usage() {
 
     exit 1; 
 }
-
 
 
 
@@ -158,7 +157,6 @@ then
     shift
 
     exclude_folders=${@};
-
     array=(functions staging intermediate serving analyses cleanup tests)
 
     for folder in ${array[@]};
@@ -179,8 +177,6 @@ then
 
     exit 0;
 fi;
-
-
 
 
 
@@ -210,6 +206,18 @@ then
 fi;
 
 
+# Delete all objects 
+if [[ $arg == --build-model ]]
+then 
+    shift
+
+    model_name=${1}
+    build_model "cleanup/cleanup.sql"
+
+    exit 0;
+fi;
+
+
 # Build entire project
 if [[ $arg == --all ]]
 then 
@@ -217,7 +225,6 @@ then
     array=(functions staging intermediate serving analyses)
     for folder in ${array[@]};
     do 
-
         # files 
         for model in $(ls ${folder} | grep -E *.sql)
         do 
