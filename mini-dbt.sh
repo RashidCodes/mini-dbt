@@ -19,7 +19,13 @@ build_model(){
     then 
         echo -e "${RED}$(date +%F:%H-%M-%S) [ERROR]: Failed to build ${1}${ENDCOLOR}";
         exit 1;
-    fi 
+    fi;
+    
+    if [[ ${1} == "cleanup/cleanup.sql" ]]
+    then 
+        echo -e "${GREEN}$(date +%F:%H-%M-%S) [INFO]: Successfully removed all objects${ENDCOLOR}";
+        exit 0;
+    fi;
 
     echo -e "${GREEN}$(date +%F:%H-%M-%S) [INFO]: Successfully built ${1}${ENDCOLOR}";
 }
