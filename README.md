@@ -50,6 +50,11 @@ Start your Analyses :rocket:
 mini-dbt --help
 ```
 
+- Delete all objects
+```bash 
+mini-dbt --cleanup
+```
+
 - Start a `mini-dbt` project
 
 ```bash
