@@ -100,7 +100,7 @@ then
     shift 
 
     # build single folder 
-    single_folder=${1}
+    single_folder=${@}
 
     for folder in $single_folder
     do 
