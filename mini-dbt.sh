@@ -12,7 +12,7 @@ ENDCOLOR="\e[0m"
 
 build_model(){
     echo -e "${YELLOW}$(date +%F:%H-%M-%S) [INFO]: Building ${1}${ENDCOLOR}";
-    sqlcmd -S sqlf5bi -b -d AnalyticsDatamart -E -i ${1} -r
+    sqlcmd -S server -b -d datastore -E -i ${1} -r
 
     if [ $? -ne 0 ]
     then 
