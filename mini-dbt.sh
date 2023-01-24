@@ -1,7 +1,6 @@
 #!/bin/bash 
 
-arg=${1}
-
+arg=${1};
 
 # colors 
 RED="\e[31m"
@@ -13,14 +12,14 @@ ENDCOLOR="\e[0m"
 
 build_model(){
     echo -e "${YELLOW}$(date +%F:%H-%M-%S) [INFO]: Building ${1}${ENDCOLOR}";
-    sqlcmd -S localhost -b -d Datamart -E -i ${1} -r # See: https://learn.microsoft.com/en-us/sql/tools/sqlcmd-utility?view=sql-server-ver16
+    sqlcmd -S sqlf5bi -b -d AnalyticsDatamart -E -i ${1} -r
 
     if [ $? -ne 0 ]
     then 
         echo -e "${RED}$(date +%F:%H-%M-%S) [ERROR]: Failed to build ${1}${ENDCOLOR}";
         exit 1;
-    fi;
-    
+    fi 
+
     if [[ ${1} == "cleanup/cleanup.sql" ]]
     then 
         echo -e "${GREEN}$(date +%F:%H-%M-%S) [INFO]: Successfully removed all objects${ENDCOLOR}";
@@ -34,7 +33,7 @@ build_model(){
 containsElement () {
     local legendary_array match="$1"
     shift
-    for legendary_array; do [[ "${legendary_array}" == "${match}" ]] && return 0; done;
+    for legendary_array; do [[ "$legendary_array" == "$match" ]] && return 0; done;
     return 1;
 }
 
@@ -66,6 +65,7 @@ usage() {
 
 
 
+
 # Exclude models from build
 if [[ $arg == --exclude-models-from-build ]]
 then 
@@ -73,18 +73,19 @@ then
 
     # models to be excluded
     exclude_models=${@}
-    for folder in $(echo /*);
-    do 
-        echo "${folder}";
+    array=(functions staging optimisation intermediate serving analyses)
+
+    for folder in ${array[@]};
+    do
  
-        for model in $(ls ${folder} | grep -E *.sql)
+        for model in $(find ${folder}/*.sql 2> /dev/null)
         do 
         
-            containsElement "${model}" ${exclude_models};
+            containsElement "${model}" "${folder}/${exclude_models}";
 
             if [[ $? -ne 0 ]]
             then 
-                build_model "${folder}/${model}"
+                build_model "${model}"
             fi;
 
         done;
@@ -105,9 +106,9 @@ then
     for folder in $single_folder
     do 
 
-        for file in $(ls ${folder} | grep -E *.sql)
-        do 
-            build_model "${folder}/${file}"
+        for file in $(find ${folder}/*.sql)
+        do
+            build_model "${file}"
         done;
     done;
 
@@ -131,14 +132,14 @@ then
     for folder in $single_folder;
     do 
         # model 
-        for model in $(ls ${folder} | grep -E *.sql)
+        for model in $(find ${folder}/*.sql)
         do 
         
-            containsElement "${model}" ${exclude_models};
+            containsElement "${model}" "${single_folder}/${exclude_models}";
 
             if [[ $? -ne 0 ]]
             then 
-                build_model "${folder}/${model}"
+                build_model "${model}"
             else 
                 echo -e "${BLUE}$(date +%F:%H-%M-%S) [INFO]: Skipping model ${model}${ENDCOLOR}"; 
             fi;
@@ -157,17 +158,18 @@ then
     shift
 
     exclude_folders=${@};
-    array=(functions staging intermediate serving analyses cleanup tests)
+
+    array=(functions staging optimisation intermediate serving analyses)
 
     for folder in ${array[@]};
     do 
-        containsElement "${folder}/" ${exclude_folders};
+        containsElement "${folder}/" "${exclude_folders}";
 
         if [[ $? -ne 0 ]]
         then 
-            for model in $(ls ${folder} | grep -E *.sql)
+            for model in $(find ${folder}/*.sql)
             do 
-                build_model "${folder}/${model}"
+                build_model "${model}"
             done;
         else 
             echo -e "${BLUE}$(date +%F:%H-%M-%S) [INFO]: Skipping folder ${folder}${ENDCOLOR}"; 
@@ -177,6 +179,8 @@ then
 
     exit 0;
 fi;
+
+
 
 
 
@@ -192,27 +196,15 @@ then
     do 
 
         # files 
-        for model in $(ls ${folder} | grep -E *.sql)
+        for model in $(find ${folder}*.sql 2> /dev/null)
         do 
-            if [[ $model == $model_name ]]
+            if [[ $model == "${folder}${model_name}" ]]
             then 
-                build_model "${folder}${model}"
-                
+                build_model "${model}";
+                exit 0;
             fi 
         done;
     done;
-
-    exit 0;
-fi;
-
-
-# Delete all objects 
-if [[ $arg == --build-model ]]
-then 
-    shift
-
-    model_name=${1}
-    build_model "cleanup/cleanup.sql"
 
     exit 0;
 fi;
@@ -222,13 +214,14 @@ fi;
 if [[ $arg == --all ]]
 then 
 
-    array=(functions staging intermediate serving analyses)
+    array=(functions staging optimisation intermediate serving analyses)
     for folder in ${array[@]};
     do 
+
         # files 
-        for model in $(ls ${folder} | grep -E *.sql)
+        for model in $(find ${folder}/*.sql 2> /dev/null)
         do 
-            build_model "${folder}/${model}"
+            build_model "${model}"
         done;
     done;
     exit 0;
@@ -239,7 +232,7 @@ fi;
 if [[ ${arg} == init ]]
 then 
     echo -e "${YELLOW}Initializing your mini-dbt project${ENDCOLOR}"
-    array=(analyses assets cleanup functions intermediate serving staging tests)
+    array=(analyses assets cleanup functions intermediate optimisation serving staging tests)
 
     for folder in ${array[@]}; do 
         if [[ ! -d ${folder} ]]
@@ -260,6 +253,16 @@ then
 
 fi; 
 
+# Delete all objects
+# Build a single model
+if [[ $arg == --cleanup ]]
+then 
+
+    build_model "cleanup/cleanup.sql"
+        
+    exit 0;
+fi;
+
 
 if [[ $arg == --help ]]
 then 
@@ -267,7 +270,5 @@ then
 fi;
 
 
-echo "rashid's mini-dbt v0.1.1"
+echo "rashid's mini-dbt v0.1.5"
 echo "Try mini-dbt --help for more information"
-
-
